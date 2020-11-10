@@ -11,6 +11,7 @@ import skimage.transform
 import skimage.filters
 import skimage.morphology
 import numpy as np
+from skimage import measure
 from skimage.viewer.plugins.base import Plugin
 
 # This is a sample Python script.
@@ -33,53 +34,23 @@ if __name__ == '__main__':
 
     edges = skimage.feature.canny(
         edges,
-        sigma=5,
-        # low_threshold=10,
-        # high_threshold=50
+        sigma=5
     )
-    # edges = skimage.filters.sobel(edges)
     edges = skimage.morphology.dilation(edges)
-    # fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(10, 4))
-    #
-    # result = hough_ellipse(edges, accuracy=20, threshold=250,
-    #                        min_size=100, max_size=120)
-    # result.sort(order='accumulator')
-    #
-    # # Estimated parameters for the ellipse
-    # best = list(result[-1])
-    # yc, xc, a, b = [int(round(x)) for x in best[1:5]]
-    # orientation = best[5]
-    #
-    # cy, cx = ellipse_perimeter(yc, xc, a, b, orientation)
-    # image[cy, cx] = (0, 0, 255)
-    #
-    # edges = color.gray2rgb(img_as_ubyte(edges))
-    # edges[cy, cx] = (250, 0, 0)
+    coords = np.column_stack(np.nonzero(edges))
+
+    model, inliers = measure.ransac(coords, measure.CircleModel,
+                                    min_samples=3, residual_threshold=1,
+                                    max_trials=1000)
 
     fig2, (ax1, ax2) = plt.subplots(ncols=2, nrows=1, figsize=(8, 4),
                                     sharex=True, sharey=True)
 
     ax1.set_title('Original picture')
+    ax1.scatter(model.params[1], model.params[0], s=25, c='red')
     ax1.imshow(image)
 
     ax2.set_title('Edge (white) and result (red)')
     ax2.imshow(edges)
 
     plt.show()
-
-    # # image = skimage.feature.canny(image, sigma=4)
-    # # image = skimage.filters.sobel(image)
-    # # image = skimage.feature.mor(image)
-    # # image = skimage.filters.sobel(image)
-    # image = skimage.morphology.erosion(image)
-    # image = skimage.morphology.erosion(image)
-    # image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # image = skimage.feature.canny(image, sigma=3)
-    # image = skimage.filters.sobel(image)
-    # image = skimage.morphology.dilation(image)
-    #
-    #
-    # viewer = ImageViewer(image)
-    # viewer.show()
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
