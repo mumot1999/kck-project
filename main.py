@@ -1,7 +1,9 @@
 import cv2
 import skimage.io
 from matplotlib import pyplot as plt
-from skimage.draw import circle_perimeter
+from skimage import color, img_as_ubyte
+from skimage.draw import circle_perimeter, ellipse_perimeter
+from skimage.transform import hough_ellipse
 from skimage.viewer import ImageViewer
 
 import skimage.feature
@@ -30,27 +32,39 @@ if __name__ == '__main__':
     edges = cv2.cvtColor(edges, cv2.COLOR_BGR2GRAY)
 
     edges = skimage.feature.canny(
-        gray_image,
-        sigma=3,
+        edges,
+        sigma=5,
         # low_threshold=10,
         # high_threshold=50
     )
-    edges = skimage.filters.sobel(edges)
+    # edges = skimage.filters.sobel(edges)
     edges = skimage.morphology.dilation(edges)
-    fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(10, 4))
+    # fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(10, 4))
+    #
+    # result = hough_ellipse(edges, accuracy=20, threshold=250,
+    #                        min_size=100, max_size=120)
+    # result.sort(order='accumulator')
+    #
+    # # Estimated parameters for the ellipse
+    # best = list(result[-1])
+    # yc, xc, a, b = [int(round(x)) for x in best[1:5]]
+    # orientation = best[5]
+    #
+    # cy, cx = ellipse_perimeter(yc, xc, a, b, orientation)
+    # image[cy, cx] = (0, 0, 255)
+    #
+    # edges = color.gray2rgb(img_as_ubyte(edges))
+    # edges[cy, cx] = (250, 0, 0)
 
-    hough_radii = np.arange(100, 200, 5)
-    hough_res = skimage.transform.hough_circle(edges, hough_radii)
+    fig2, (ax1, ax2) = plt.subplots(ncols=2, nrows=1, figsize=(8, 4),
+                                    sharex=True, sharey=True)
 
-    accums, cx, cy, radii = skimage.transform.hough_circle_peaks(hough_res, hough_radii, total_num_peaks=3)
-    for center_y, center_x, radius in zip(cy, cx, radii):
-        circy, circx = circle_perimeter(center_y, center_x, radius,
-                                        shape=image.shape)
-        image[circy, circx] = (220, 20, 20)
+    ax1.set_title('Original picture')
+    ax1.imshow(image)
 
-    # ax.imshow(edges)
-    # plt.show()
-    ax.imshow(image)
+    ax2.set_title('Edge (white) and result (red)')
+    ax2.imshow(edges)
+
     plt.show()
 
     # # image = skimage.feature.canny(image, sigma=4)
