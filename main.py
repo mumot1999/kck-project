@@ -54,3 +54,48 @@ if __name__ == '__main__':
     ax2.imshow(edges)
 
     plt.show()
+
+
+
+    # code derived from watershed example of scikit-image
+# http://scikit-image.org/docs/dev/auto_examples/plot_watershed.html
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import ndimage as ndi
+
+from skimage.morphology import watershed
+from skimage.feature import peak_local_max
+from skimage.color import rgb2gray
+from skimage.io import imread
+
+img = imread('flame.png')
+image = rgb2gray(img) > 0.01
+
+# Now we want to separate the two objects in image
+# Generate the markers as local maxima of the distance to the background
+distance = ndi.distance_transform_edt(image)
+
+# get global maximum like described in
+# http://stackoverflow.com/a/3584260/2156909
+max_loc = unravel_index(distance.argmax(), distance.shape)
+
+fig, axes = plt.subplots(ncols=4, figsize=(10, 2.7))
+ax0, ax1, ax2, ax3 = axes
+
+ax0.imshow(img,interpolation='nearest')
+ax0.set_title('Image')
+ax1.imshow(image, cmap=plt.cm.gray, interpolation='nearest')
+ax1.set_title('Thresholded')
+ax2.imshow(-distance, cmap=plt.cm.jet, interpolation='nearest')
+ax2.set_title('Distances')
+ax3.imshow(rgb2gray(img), cmap=plt.cm.gray, interpolation='nearest')
+ax3.set_title('Detected centre')
+ax3.scatter(max_loc[1], max_loc[0], color='red')
+
+for ax in axes:
+    ax.axis('off')
+
+fig.subplots_adjust(hspace=0.01, wspace=0.01, top=1, bottom=0, left=0,
+                    right=1)
+plt.show()
