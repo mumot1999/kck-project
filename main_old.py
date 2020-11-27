@@ -14,8 +14,6 @@ import cv2
 
 import coin_detector
 
-coin_detector.file_reader.FileReader.get_samples(coin_type=coin_detector.CoinType.GR_20)
-
 image = cv2.imread("resources/new/70.jpg")
 
 # resize image while retaining aspect ratio

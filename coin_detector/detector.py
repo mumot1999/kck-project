@@ -10,7 +10,7 @@ class Detector:
         self.clf = MLPClassifier(solver="lbfgs")
         samples_list = [coin_detector.FileReader.get_sample_images(coin) for coin in coin_detector.CoinType]
         self.samples = [s for image in samples_list for s in image]
-        self.learn()
+        self.score = self.learn()
 
     def learn(self):
         X = [coin.histogram for coin in self.samples]
@@ -20,6 +20,6 @@ class Detector:
             X, y, test_size=.2)
 
         self.clf.fit(X_train, y_train)
-        score = int(self.clf.score(X_test, y_test) * 100)
+        return int(self.clf.score(X_test, y_test) * 100)
 
 
