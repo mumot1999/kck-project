@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class Coin(Enum):
+class CoinType(Enum):
     GR_1 = 1
     GR_2 = 2
     GR_5 = 5
