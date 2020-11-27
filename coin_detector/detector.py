@@ -16,7 +16,7 @@ class Detector:
         self.score = self.learn()
 
     def learn(self):
-        X = [coin.histogram for coin in self.samples]
+        X = [coin.old_histogram for coin in self.samples]
         y = [coin.coin_type.value for coin in self.samples]
 
         X_train, X_test, y_train, y_test = train_test_split(

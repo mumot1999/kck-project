@@ -17,9 +17,13 @@ class Coin:
         self.histogram = self.calculate_histogram()
 
     def calculate_histogram(self):
+
         image = self.image
+
         image = cv2.GaussianBlur(image, (7,7), 0)
-        image = cv2.Canny(image, 200 / 3, 50)
+        image = cv2.Canny(image, 30, 300)
+        if image is None:
+            return [0]
         height, width = image.shape[:2]
 
         # Desired "pixelated" size
@@ -36,9 +40,12 @@ class Coin:
         return result
 
     def calculate_histogram_by_area(self):
-        image = cv2.GaussianBlur(self.image, (7,7), 0)
+
+        image = cv2.GaussianBlur(self.image, (5,5), 0)
         image = cv2.Canny(image, 200 / 3, 50)
         self.image_used_in_histogram = image
+        if image is None:
+            return [0] * 6
         h = image.shape[0]
         w = image.shape[1]
         first = 0
