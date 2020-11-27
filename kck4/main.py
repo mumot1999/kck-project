@@ -5,6 +5,7 @@ import numpy as np
 #nazwy folderow z samplami
 dirimg = ['1g', '2g', '5g', '10g', '20g', '50g', '1z', '2z', '5z']
 
+
 def histogram(image_o, isDir=None):
     if isDir is not None:
         image = cv2.imread(image_o)  # image
@@ -65,7 +66,7 @@ def similarity(array1, array2):
 
 
 def run_main():
-    roi = cv2.imread('sample/3.jpg')
+    roi = cv2.imread('../resources/new/70.jpg')
     gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
 #wykrwyanie okręgów
     gray_blur = cv2.GaussianBlur(gray, (7, 7), 0)
