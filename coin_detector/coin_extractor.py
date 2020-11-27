@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import cv2
 import numpy as np
 import coin_detector
@@ -26,8 +28,8 @@ class CoinExtractor:
 
         blurred = cv2.GaussianBlur(gray, (7, 7), 0)
 
-        circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, dp=2.2, minDist=100,
-                                   param1=200, param2=100, minRadius=50, maxRadius=120)
+        circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, dp=2.5, minDist=100,
+                                   param1=200, param2=80, minRadius=35, maxRadius=120)
 
         count = 0
         coordinates = []
@@ -60,15 +62,19 @@ class CoinExtractor:
                     cv2.circle(m, (w, h), d, (255), -1)
                     maskedCoin = cv2.bitwise_and(roi, roi, mask=m)
 
-                    cv2.imshow("Coin", maskedCoin);
+                    cv2.imshow(f"Coin{count}", maskedCoin);
+                    # cv2.waitKey()
 
-                    cv2.imwrite("extracted/01coin{}.png".format(count), maskedCoin)
+                    id = datetime.now().timestamp()
+                    cv2.imwrite(f"extracted/coin{count}{id}.png", maskedCoin)
 
-                # draw contour and results in the output image
-                # cv2.circle(output, (x, y), d, (0, 255, 0), 2)
+                cv2.circle(output, (x, y), d, (0, 255, 0), 2)
                 # cv2.putText(output, material,
                 #             (x - 40, y), cv2.FONT_HERSHEY_PLAIN,
                 #             1.5, (0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+
+        # cv2.imshow("coins", output)
+        # cv2.waitKey()
 
         return images
 
