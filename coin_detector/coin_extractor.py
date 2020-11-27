@@ -7,8 +7,18 @@ import coin_detector
 
 class CoinExtractor:
 
-    @staticmethod
-    def extract_coins(image):
+    class CoinContainer:
+        def __init__(self, coin, coordinates):
+            self.coin = coin
+            self.coordinates = coordinates
+
+        def print(self, output_image, text):
+            x,y = self.coordinates
+            cv2.putText(output_image, str(text),
+                        (x - 40, y), cv2.FONT_HERSHEY_PLAIN,
+                        1.5, (0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+
+    def __init__(self, image):
 
         # resize image while retaining aspect ratio
         d = 1024 / image.shape[1]
@@ -16,14 +26,14 @@ class CoinExtractor:
         image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
 
         # create a copy of the image to display results
-        output = image.copy()
+        self.output = image.copy()
 
         # convert image to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         # improve contrast accounting for differences in lighting conditions:
         # create a CLAHE object to apply contrast limiting adaptive histogram equalization
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        clahe = cv2.createCLAHE(clipLimit=2.0)
         gray = clahe.apply(gray)
 
         blurred = cv2.GaussianBlur(gray, (7, 7), 0)
@@ -32,9 +42,8 @@ class CoinExtractor:
                                    param1=200, param2=80, minRadius=35, maxRadius=120)
 
         count = 0
-        coordinates = []
-
-        images = []
+        self.coordinates = []
+        self.coins = []
         if circles is not None:
             # append radius to list of diameters (we don't bother to multiply by 2)
 
@@ -47,12 +56,16 @@ class CoinExtractor:
                 count += 1
 
                 # add coordinates to list
-                coordinates.append((x, y))
+                self.coordinates.append((x, y))
 
                 # extract region of interest
                 roi = image[y - d:y + d, x - d:x + d]
 
-                images.append(coin_detector.Coin(roi, None))
+                coin = coin_detector.Coin(roi, None)
+                self.coins.append(self.CoinContainer(
+                    coin,
+                    (x, y)
+                ))
 
                 # write masked coin to file
                 if True:
@@ -62,19 +75,17 @@ class CoinExtractor:
                     cv2.circle(m, (w, h), d, (255), -1)
                     maskedCoin = cv2.bitwise_and(roi, roi, mask=m)
 
-                    cv2.imshow(f"Coin{count}", maskedCoin);
+                    # cv2.imshow(f"Coin{count}", np.concatenate((cv2.cvtColor(coin.image_used_in_histogram, cv2.COLOR_GRAY2BGR)
+                    #                                            , roi), axis=1))
                     # cv2.waitKey()
 
                     id = datetime.now().timestamp()
                     cv2.imwrite(f"extracted/coin{count}{id}.png", maskedCoin)
 
-                cv2.circle(output, (x, y), d, (0, 255, 0), 2)
-                # cv2.putText(output, material,
-                #             (x - 40, y), cv2.FONT_HERSHEY_PLAIN,
-                #             1.5, (0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+                cv2.circle(self.output, (x, y), d, (0, 255, 0), 2)
 
         # cv2.imshow("coins", output)
         # cv2.waitKey()
 
-        return images
+
 

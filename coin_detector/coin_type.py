@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class CoinType(Enum):
+    BAD = 0
     GR_1 = 1
     GR_2 = 2
     GR_5 = 5

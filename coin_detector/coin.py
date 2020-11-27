@@ -10,13 +10,35 @@ class Coin:
 
     def __init__(self, image, coin_type: CoinType):
         self.coin_type = coin_type
+        self.image_used_in_histogram = None
         self.image = image
-        self.histogram = self.calculate_histogram()
+        self.old_histogram = self.calculate_histogram_by_area()
         self.color_histogram = self.calculate_color_histogram()
+        self.histogram = self.calculate_histogram()
 
     def calculate_histogram(self):
-        image = cv2.GaussianBlur(self.image, (5, 5), 0)
-        image = cv2.Canny(image, 200 / 3, 200)
+        image = self.image
+        image = cv2.GaussianBlur(image, (7,7), 0)
+        image = cv2.Canny(image, 200 / 3, 50)
+        height, width = image.shape[:2]
+
+        # Desired "pixelated" size
+        w, h = (30,30)
+
+        # Resize input to "pixelated" size
+        temp = cv2.resize(image, (w, h), interpolation=cv2.INTER_LINEAR)
+
+        # Initialize output image
+        output = cv2.resize(temp, (height, width), interpolation=cv2.INTER_NEAREST)
+        self.image_used_in_histogram = output
+
+        result = (temp.flatten()).tolist()
+        return result
+
+    def calculate_histogram_by_area(self):
+        image = cv2.GaussianBlur(self.image, (7,7), 0)
+        image = cv2.Canny(image, 200 / 3, 50)
+        self.image_used_in_histogram = image
         h = image.shape[0]
         w = image.shape[1]
         first = 0
@@ -53,8 +75,13 @@ class Coin:
             for x in range(int(round(2 * w / 3)), w):
                 if image[y, x] != 0:
                     sixth = sixth + 1
+
+        color_histogram = [float(x) for x in self.calculate_color_histogram()]
+
         array = [first / pixel_count, second / pixel_count2, third / pixel_count, fourth / pixel_count,
-                 fifth / pixel_count2, sixth / pixel_count]
+                 fifth / pixel_count2, sixth / pixel_count]\
+                # + color_histogram
+
         return array
 
     def calculate_color_histogram(self):
@@ -65,7 +92,7 @@ class Coin:
         cv2.circle(m, (w, h), 60, 255, -1)
 
         # calcHist expects a list of images, color channels, mask, bins, ranges
-        h = cv2.calcHist([img], [0, 1, 2], m, [8, 8, 8], [0, 256, 0, 256, 0, 256])
+        h = cv2.calcHist([img], [0, 1, 2], m, [8,8,8], [0, 256, 0, 256, 0, 256])
 
         # return normalized "flattened" histogram
         return cv2.normalize(h, h).flatten()
