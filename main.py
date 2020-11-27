@@ -4,8 +4,9 @@ import coin_detector
 
 if __name__ == "__main__":
     # image = cv2.imread("resources/new/image4.jpg")
-    image = cv2.imread("resources/new/image3.jpg")
+    # image = cv2.imread("resources/new/image3.jpg")
     # image = cv2.imread("resources/new/893.png")
+    image = cv2.imread("resources/new/image2.jpg")
 
     extractor = coin_detector.CoinExtractor(image)
 

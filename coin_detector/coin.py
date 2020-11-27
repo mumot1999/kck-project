@@ -23,7 +23,7 @@ class Coin:
         height, width = image.shape[:2]
 
         # Desired "pixelated" size
-        w, h = (30,30)
+        w, h = [200] * 2
 
         # Resize input to "pixelated" size
         temp = cv2.resize(image, (w, h), interpolation=cv2.INTER_LINEAR)
