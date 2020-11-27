@@ -16,4 +16,4 @@ class FileReader:
 
     @staticmethod
     def get_samples_path(coin_type: CoinType):
-        return f'samples/{coin_type.value}'
+        return f'samples_2/{coin_type.value}'

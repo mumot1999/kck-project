@@ -1,6 +1,7 @@
 import math
 
 import cv2
+import numpy as np
 
 from coin_detector.coin_type import CoinType
 
@@ -11,6 +12,7 @@ class Coin:
         self.coin_type = coin_type
         self.image = image
         self.histogram = self.calculate_histogram()
+        self.color_histogram = self.calculate_color_histogram()
 
     def calculate_histogram(self):
         image = cv2.GaussianBlur(self.image, (5, 5), 0)
@@ -54,5 +56,18 @@ class Coin:
         array = [first / pixel_count, second / pixel_count2, third / pixel_count, fourth / pixel_count,
                  fifth / pixel_count2, sixth / pixel_count]
         return array
+
+    def calculate_color_histogram(self):
+        # create mask
+        img = self.image
+        m = np.zeros(img.shape[:2], dtype="uint8")
+        (w, h) = (int(img.shape[1] / 2), int(img.shape[0] / 2))
+        cv2.circle(m, (w, h), 60, 255, -1)
+
+        # calcHist expects a list of images, color channels, mask, bins, ranges
+        h = cv2.calcHist([img], [0, 1, 2], m, [8, 8, 8], [0, 256, 0, 256, 0, 256])
+
+        # return normalized "flattened" histogram
+        return cv2.normalize(h, h).flatten()
 
 

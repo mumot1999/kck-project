@@ -2,6 +2,7 @@ import cv2
 import math
 import os
 import numpy as np
+import coin_detector
 #nazwy folderow z samplami
 dirimg = ['1g', '2g', '5g', '10g', '20g', '50g', '1z', '2z', '5z']
 
@@ -66,6 +67,8 @@ def similarity(array1, array2):
 
 
 def run_main():
+    detector = coin_detector.Detector()
+
     roi = cv2.imread('../resources/new/70.jpg')
     gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
 #wykrwyanie okręgów
@@ -93,32 +96,17 @@ def run_main():
 
             # extract region of interest
             roi2 = roi[y - d:y + d, x - d:x + d]
+
             # cv2.imshow('Detected coins', roi2)
             # cv2.waitKey()
-            similar_value = []
-            similar = []
-            #pętla po folderach 1g-5z
-            for direct in dirimg:
-                sim = []
-                for filename in os.listdir(direct):
-                    if filename.endswith(".png"):
-                        name = os.path.join(direct, filename)
-                        if first == 0:
-                            #odczytanie wartości z tablicy po 1 pętli
-                            sim.append(similarity(histogram(roi2), histogram_array[histogram_array_names.index(name)]))
-                        if first == 1:
-                            histogram1 = histogram(os.path.join(direct, filename), 1)
-                            sim.append(similarity(histogram(roi2), histogram1))
-                            histogram_array_names.append(name)
-                            histogram_array.append(histogram1)
-                #wpisanie do tablicy średniej zgodności
-                similar_value.append(np.mean(sim))
-                similar.append(direct)
-            first = 0;
+
+            coin = coin_detector.Coin(roi2, None)
+            value = detector.clf.predict([coin.histogram])
+
             font = cv2.FONT_HERSHEY_SIMPLEX
-            cv2.putText(roi2, similar[similar_value.index(np.max(similar_value))], (0, 20), font, 0.5, (0, 0, 0), 2,
+            cv2.putText(roi2, str(value[0]), (0, 20), font, 0.5, (0, 0, 0), 2,
                         cv2.LINE_AA)
-            print('Coin nr:', coins, similar[similar_value.index(np.max(similar_value))])
+            print('Coin nr:', coins, value[0])
             coins=coins+1
             # print(similar, '\n', similar_value)
             # cv2.imshow('Detected coins', roi2)
