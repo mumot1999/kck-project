@@ -12,7 +12,7 @@ class FileReader:
     def get_sample_images(coin_type: CoinType) -> [Coin]:
         path = os.getcwd() + '/coin_detector/' + FileReader.get_samples_path(coin_type)
         images = [Coin(cv2.imread(os.path.join(path, image_name)), coin_type) for image_name in os.listdir(path)]
-        return imagesf
+        return images
 
     @staticmethod
     def get_samples_path(coin_type: CoinType):
