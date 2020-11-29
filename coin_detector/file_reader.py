@@ -10,9 +10,9 @@ class FileReader:
 
     @staticmethod
     def get_sample_images(coin_type: CoinType) -> [Coin]:
-        path = '/'.join(__file__.split("/")[:-1]) + '/' + FileReader.get_samples_path(coin_type)
+        path = os.getcwd() + '/coin_detector/' + FileReader.get_samples_path(coin_type)
         images = [Coin(cv2.imread(os.path.join(path, image_name)), coin_type) for image_name in os.listdir(path)]
-        return images
+        return imagesf
 
     @staticmethod
     def get_samples_path(coin_type: CoinType):
