@@ -11,6 +11,12 @@ if __name__ == "__main__":
     extractor = coin_detector.CoinExtractor(image)
 
     detector = coin_detector.Detector()
+
+    for i, photo in enumerate(filter(lambda x: x.coin_type.value == 500, detector.samples)):
+        cv2.imshow(str(i), photo.image)
+        for id, debug_image in enumerate(photo.debug_images):
+            cv2.imshow(f"{i}-{id}-debug", debug_image)
+
     print(detector.score)
 
     values = []
@@ -22,9 +28,11 @@ if __name__ == "__main__":
         coin.print(extractor.output, value[0])
 
     cv2.imshow("RESULT", extractor.output)
-    cv2.waitKey()
 
     print(values)
     print(sum(values))
+
+    cv2.waitKey()
+    input()
 
 

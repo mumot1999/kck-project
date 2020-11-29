@@ -7,7 +7,7 @@ import coin_detector
 
 class CoinExtractor:
 
-    class CoinContainer:
+    class CoinContainer: 
         def __init__(self, coin, coordinates):
             self.coin = coin
             self.coordinates = coordinates
@@ -61,26 +61,27 @@ class CoinExtractor:
                 # extract region of interest
                 roi = image[y - d:y + d, x - d:x + d]
 
-                coin = coin_detector.Coin(roi, None)
-                self.coins.append(self.CoinContainer(
-                    coin,
-                    (x, y)
-                ))
+                if len(roi.flatten()):
+                    coin = coin_detector.Coin(roi, None)
+                    self.coins.append(self.CoinContainer(
+                        coin,
+                        (x, y)
+                    ))
 
-                # write masked coin to file
-                if True:
-                    m = np.zeros(roi.shape[:2], dtype="uint8")
-                    w = int(roi.shape[1] / 2)
-                    h = int(roi.shape[0] / 2)
-                    cv2.circle(m, (w, h), d, (255), -1)
-                    maskedCoin = cv2.bitwise_and(roi, roi, mask=m)
+                    # write masked coin to file
+                    if True:
+                        m = np.zeros(roi.shape[:2], dtype="uint8")
+                        w = int(roi.shape[1] / 2)
+                        h = int(roi.shape[0] / 2)
+                        cv2.circle(m, (w, h), d, (255), -1)
+                        maskedCoin = cv2.bitwise_and(roi, roi, mask=m)
 
-                    # cv2.imshow(f"Coin{count}", np.concatenate((cv2.cvtColor(coin.image_used_in_histogram, cv2.COLOR_GRAY2BGR)
-                    #                                            , roi), axis=1))
-                    # cv2.waitKey()
+                        # cv2.imshow(f"Coin{count}", np.concatenate((cv2.cvtColor(coin.image_used_in_histogram, cv2.COLOR_GRAY2BGR)
+                        #                                            , roi), axis=1))
+                        # cv2.waitKey()
 
-                    id = datetime.now().timestamp()
-                    cv2.imwrite(f"extracted/coin{count}{id}.png", maskedCoin)
+                        id = datetime.now().timestamp()
+                        cv2.imwrite(f"extracted/coin{count}{id}.png", maskedCoin)
 
                 cv2.circle(self.output, (x, y), d, (0, 255, 0), 2)
 

@@ -11,26 +11,41 @@ class Coin:
     def __init__(self, image, coin_type: CoinType):
         self.coin_type = coin_type
         self.image_used_in_histogram = None
+        self.debug_images = []
         self.image = image
-        self.old_histogram = self.calculate_histogram_by_area()
-        self.color_histogram = self.calculate_color_histogram()
+        # self.old_histogram = self.calculate_histogram_by_area()
+        # self.color_histogram = self.calculate_color_histogram()
         self.histogram = self.calculate_histogram()
 
     def calculate_histogram(self):
         image = self.image
-        image = cv2.GaussianBlur(image, (7,7), 0)
+        image = cv2.GaussianBlur(image, (5,5), 0)
         image = cv2.Canny(image, 200 / 3, 50)
         height, width = image.shape[:2]
 
+        self.debug_images.append(image.copy())
+
         # Desired "pixelated" size
-        w, h = [200] * 2
+        w, h = (5,5)
 
         # Resize input to "pixelated" size
-        temp = cv2.resize(image, (w, h), interpolation=cv2.INTER_LINEAR)
+        temp = cv2.resize(image, (w, h), interpolation=cv2.INTER_LANCZOS4)
+        self.debug_images.append(temp.copy())
+
+        # m = np.zeros(temp.shape[:2], dtype="uint32")
+        #
+        # for x in range(w):
+        #     for y in range(h):
+        #         m[x,y] = 600
+        #         self.debug_images.append(m.copy())
 
         # Initialize output image
-        output = cv2.resize(temp, (height, width), interpolation=cv2.INTER_NEAREST)
-        self.image_used_in_histogram = output
+        output = cv2.resize(temp, (height, width), interpolation=cv2.INTER_LINEAR)
+
+        # self.debug_images.append(temp)
+        # self.debug_images.append(output)
+
+        # self.image_used_in_histogram = temp
 
         result = (temp.flatten()).tolist()
         return result
